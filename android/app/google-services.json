@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "271382473784",
+    "project_id": "hamronovel",
+    "storage_bucket": "hamronovel.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271382473784:android:2b0711924ce6096111cacd",
+        "android_client_info": {
+          "package_name": "com.manish.books"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "271382473784-kek8b1vt4ep4s395bedh0igpl8r05c6b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUsbmW5iAHdoFF4Y_ENcIZUgKCAJj0qWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "271382473784-kek8b1vt4ep4s395bedh0igpl8r05c6b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
