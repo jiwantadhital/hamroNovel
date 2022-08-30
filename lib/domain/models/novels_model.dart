@@ -1,11 +1,9 @@
-import 'dart:ffi';
-
 class NovelModel {
   int? id;
   String? title;
   String? image;
   int? likes;
-  int? comments;
+  List<Comments>? comments;
   String? description;
   int? status;
   int? featureProduct;
@@ -37,7 +35,12 @@ class NovelModel {
     title = json['title'];
     image = json['image'];
     likes = json['likes'];
-    comments = json['comments'];
+    if (json['comments'] != null) {
+      comments = <Comments>[];
+      json['comments'].forEach((v) {
+        comments!.add(new Comments.fromJson(v));
+      });
+    }
     description = json['description'];
     status = json['status'];
     featureProduct = json['feature_product'];
@@ -67,7 +70,9 @@ class NovelModel {
     data['title'] = this.title;
     data['image'] = this.image;
     data['likes'] = this.likes;
-    data['comments'] = this.comments;
+    if (this.comments != null) {
+      data['comments'] = this.comments!.map((v) => v.toJson()).toList();
+    }
     data['description'] = this.description;
     data['status'] = this.status;
     data['feature_product'] = this.featureProduct;
@@ -87,6 +92,44 @@ class NovelModel {
   }
 }
 
+class Comments {
+  int? id;
+  int? productId;
+  String? comments;
+  int? likes;
+  String? createdAt;
+  String? updatedAt;
+
+  Comments({
+    this.id,
+    this.productId,
+    this.comments,
+    this.likes,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  Comments.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    productId = json['product_id'];
+    comments = json['comments'];
+    likes = json['likes'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['product_id'] = this.productId;
+    data['comments'] = this.comments;
+    data['likes'] = this.likes;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
+  }
+}
+
 class CreatedBy {
   int? id;
   String? name;
@@ -94,12 +137,7 @@ class CreatedBy {
   String? createdAt;
   String? updatedAt;
 
-  CreatedBy(
-      {this.id,
-      this.name,
-      this.email,
-      this.createdAt,
-      this.updatedAt});
+  CreatedBy({this.id, this.name, this.email, this.createdAt, this.updatedAt});
 
   CreatedBy.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -177,14 +215,14 @@ class Attributes {
   String? createdAt;
   String? updatedAt;
 
-  Attributes(
-      {this.id,
-      this.name,
-      this.status,
-      this.createdBy,
-      this.createdAt,
-      this.updatedAt,
-    });
+  Attributes({
+    this.id,
+    this.name,
+    this.status,
+    this.createdBy,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   Attributes.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -207,4 +245,3 @@ class Attributes {
     return data;
   }
 }
-
