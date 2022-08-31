@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:books/controller/novel_controller.dart';
 import 'package:books/data/dao/favouriteDAO.dart';
@@ -117,6 +118,24 @@ class _MainDetailPageState extends State<MainDetailPage>
                         "${AppConstants.BASE_URL}/images/product/${recent.image.toString()}",
                       ),
                     )),
+                    child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            color: Colors.grey.withOpacity(0.09),
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: EdgeInsets.only(left: 100),
+              height: 200,
+              width: 100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(image: NetworkImage(
+                  "${AppConstants.BASE_URL}/images/product/${recent.image.toString()}"
+                ))
+              ),
+            ),
+          ),
+        ),
                   ),
                 ),
                 Positioned(
@@ -262,9 +281,9 @@ class _MainDetailPageState extends State<MainDetailPage>
                                     children: [
                                       TitleAndDescription(
                                           title:
-                                              recent.createdBy!.name.toString(),
+                                             "Author: ${ recent.createdBy!.name.toString()}",
                                           description:
-                                              "Author : ${recent.createdBy!.name}"),
+                                              recent.description.toString()),
                                       ListView.builder(
                                           physics: BouncingScrollPhysics(),
                                           itemCount: recent.chapters!.length,
@@ -327,24 +346,9 @@ class _MainDetailPageState extends State<MainDetailPage>
                                       Scaffold(
                                         resizeToAvoidBottomInset: true,
                                         body: ListView.builder(
-                                            reverse: true,
                                             itemCount: recent.comments!.length,
                                             itemBuilder: (context, mindex) {
-                                              return Container(
-                                                padding: EdgeInsets.only(
-                                                    top: 10,
-                                                    bottom: 10,
-                                                    left: 5,
-                                                    right: 5),
-                                                margin: EdgeInsets.only(
-                                                    right: 30, top: 10),
-                                                width: double.maxFinite,
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color: ColorManager.darkGrey
-                                                        .withOpacity(0.1)),
+                                              return Card(
                                                 child: Row(
                                                   children: [
                                                     Container(
@@ -362,8 +366,8 @@ class _MainDetailPageState extends State<MainDetailPage>
                                                                 .center,
                                                         children: [
                                                           Container(
-                                                            height: 50,
-                                                            width: 50,
+                                                            height: 30,
+                                                            width: 30,
                                                             decoration:
                                                                 BoxDecoration(
                                                               borderRadius:
