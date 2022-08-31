@@ -60,6 +60,8 @@ class _HomePageBodyState extends State<HomePageBody> {
          onRefresh: () async{
               await context.read<NovelController>().fetchData;
               await context.read<NovelController>().novelList;
+              await context.read<PopularController>().novelList;
+              await context.read<RecommendedController>().novelList;
             },
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -145,6 +147,20 @@ class _HomePageBodyState extends State<HomePageBody> {
       
   }
   Widget _buildPageItem(int index, NovelModel novelList){
+                  List rating = novelList.comments!;
+                      List<int?> newest = [];
+                      for (int i = 0;
+                          i < novelList.comments!.length;
+                          i++) {
+                        newest.add(
+                            novelList.comments?[i].likes!.toInt());
+                      }
+                      int sum = newest.fold(
+                          0,
+                          (previousValue, current) =>
+                              previousValue + current!.toInt());
+                      double average =
+                          sum / novelList.comments!.length;
     
     Matrix4 matrix = new Matrix4.identity();
     if(index == _currPageValue.floor()){
@@ -221,27 +237,16 @@ class _HomePageBodyState extends State<HomePageBody> {
                     children: [
                       BigText(text: novelList.title.toString(),color: Colors.black,size: AppSize.s14,),
                       SizedBox(height: 10,),
-                      Row(
-                        children: [
-                          Wrap(
-                            children: 
-                              List.generate(5, (index) => Icon(Icons.star_border_outlined,color: Colors.pink,size: 15,),),
-                          ),
-                           SizedBox(width: 10,),
-                           SmallText(text: novelList.likes.toString(),color: Colors.black38,),
-                           SizedBox(width: 20,),
-                           SmallText(text: "1287",color: Colors.black38,),
-                           SizedBox(width: 5,),
-                           SmallText(text: "comments",color: Colors.black38,),
-                        ],
-                      ),
-                      SizedBox(height: 20,),
+                      SmallText(text: "Last Updated Chapter  ${novelList.chapters![novelList.chapters!.length - 1].number}",color: ColorManager.primary,),
+                      SizedBox(height: 10,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconAndTextWidget(icon: Icons.circle_sharp, iconcolor: ColorManager.primary, text: "Normal"),
-                          IconAndTextWidget(icon: Icons.location_on, iconcolor: Colors.pink.shade400, text: "1.7km"),
-                          IconAndTextWidget(icon: Icons.access_time_rounded, iconcolor: ColorManager.primary, text: "32min"),
+                          IconAndTextWidget(icon: Icons.star, iconcolor: ColorManager.primary, text: "${average.toStringAsFixed(1)}/5"),
+                          IconAndTextWidget(icon: Icons.comment, iconcolor: Colors.pink.shade400, text: "${novelList
+                                                  .comments!.length
+                                                  .toString()} comments"),
+                          IconAndTextWidget(icon: Icons.favorite, iconcolor: ColorManager.primary, text: "33k"),
                         ],
                         )
                     ],

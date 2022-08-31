@@ -330,9 +330,9 @@ class _MainDetailPageState extends State<MainDetailPage>
                               child: Container(
                                 margin: EdgeInsets.only(left: 5, right: 5),
                                 padding: EdgeInsets.only(
-                                    left: 10, right: 5, bottom: 50),
+                                    left: 10, right: 5, bottom: 55),
                                 height:
-                                    MediaQuery.of(context).size.height * 0.54,
+                                    MediaQuery.of(context).size.height * 0.52,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   boxShadow: [
@@ -576,7 +576,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(width: 2, color: ColorManager.darkGrey)),
               child: Icon(
-                Icons.star_border_outlined,
+                Icons.favorite_border,
                 color: ColorManager.primary,
               ),
             ),
