@@ -15,6 +15,7 @@ import 'package:books/presentation/widgets/big_text.dart';
 import 'package:books/presentation/widgets/small_text.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:books/constants/app_constants.dart';
 import 'package:http/http.dart' as http;
@@ -101,6 +102,15 @@ class _MainDetailPageState extends State<MainDetailPage>
 
     var recent = context.read<NovelController>().novelList[widget.pageId];
     var list = context.read<NovelController>().novelList;
+    List rating = recent.comments!;
+    List<int?> newest = [];
+    var newList = json.encode(rating);
+    for (int i = 0; i < recent.comments!.length; i++) {
+      newest.add(recent.comments?[i].likes!.toInt());
+    }
+    int sum = newest.fold(
+        0, (previousValue, current) => previousValue + current!.toInt());
+    double average = sum / recent.comments!.length;
     return Scaffold(
       body: Column(
         children: [
@@ -119,23 +129,78 @@ class _MainDetailPageState extends State<MainDetailPage>
                       ),
                     )),
                     child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            color: Colors.grey.withOpacity(0.09),
-            alignment: Alignment.centerLeft,
-            child: Container(
-              margin: EdgeInsets.only(left: 100),
-              height: 200,
-              width: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(image: NetworkImage(
-                  "${AppConstants.BASE_URL}/images/product/${recent.image.toString()}"
-                ))
-              ),
-            ),
-          ),
-        ),
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        color: Colors.grey.withOpacity(0.09),
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(left: 70, top: 15),
+                              height: MediaQuery.of(context).size.height * 0.21,
+                              width: MediaQuery.of(context).size.height * 0.13,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    width: 2, color: ColorManager.white),
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        "${AppConstants.BASE_URL}/images/product/${recent.image.toString()}"),
+                                    fit: BoxFit.cover),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(top: 50, left: 10),
+                              height: 170,
+                              width: 220,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        WidgetSpan(
+                                            child: Icon(
+                                          Icons.favorite,
+                                          color: Colors.red,
+                                        )),
+                                        TextSpan(
+                                          text: "33k",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    height: 25,
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.orange),
+                                    alignment: Alignment.center,
+                                    child: SmallText(
+                                      text: "Ongoing",
+                                      color: ColorManager.white,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Attributes(
+                                    atributeId: widget.pageId,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -199,7 +264,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                 Stack(
                   children: [
                     Positioned(
-                      top: 210,
+                      top: 240,
                       left: 0,
                       right: 0,
                       child: Container(
@@ -211,7 +276,11 @@ class _MainDetailPageState extends State<MainDetailPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AppColumn(text: recent.title.toString()),
+                            AppColumn(
+                              text: recent.title.toString(),
+                              ratings: average.toStringAsFixed(1),
+                              comments: recent.comments!.length,
+                            ),
                             SizedBox(
                               height: 10,
                             ),
@@ -226,7 +295,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                       ),
                     ),
                     Positioned(
-                      top: 290,
+                      top: 320,
                       left: 0,
                       right: 0,
                       child: DefaultTabController(
@@ -281,7 +350,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                                     children: [
                                       TitleAndDescription(
                                           title:
-                                             "Author: ${ recent.createdBy!.name.toString()}",
+                                              "Author: ${recent.createdBy!.name.toString()}",
                                           description:
                                               recent.description.toString()),
                                       ListView.builder(
@@ -546,3 +615,34 @@ _setHeaders() => {
       'Content-type': 'application/json',
       'Accept': 'application/json',
     };
+
+class Attributes extends StatelessWidget {
+  int atributeId;
+  Attributes({Key? key, required this.atributeId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var attribute = context.read<NovelController>().novelList[atributeId];
+    return Container(
+      height: 20,
+      child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: attribute.attributes!.length,
+          itemBuilder: ((context, index) {
+            return Container(
+              margin: EdgeInsets.only(right: 5),
+              height: 10,
+              width: 70,
+              decoration: BoxDecoration(
+                  color: ColorManager.darkGrey,
+                  borderRadius: BorderRadius.circular(5)),
+              alignment: Alignment.center,
+              child: SmallText(
+                text: attribute.attributes![index].name.toString(),
+                color: ColorManager.white,
+              ),
+            );
+          })),
+    );
+  }
+}
