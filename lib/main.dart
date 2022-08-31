@@ -17,8 +17,5 @@ Future<void> main() async{
   );
     FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   LocalNotificationService.initialize();
-     final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-    		final token = await _fcm.getToken();
-        print(token);
 }
 
