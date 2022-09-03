@@ -1,10 +1,10 @@
 
+import 'package:books/controller/attribute_controller.dart';
 import 'package:books/controller/novel_controller.dart';
 import 'package:books/presentation/routesManager/routes_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:responsive_framework/responsive_wrapper.dart';
 
 class MyApp extends StatefulWidget {
 
@@ -34,6 +34,10 @@ class _MyAppState extends State<MyApp> {
        
         ChangeNotifierProvider(create: (context){
           return RecommendedController();
+        },
+        ),
+        ChangeNotifierProvider(create: (context){
+          return AttributeController();
         },
         ),
       ],

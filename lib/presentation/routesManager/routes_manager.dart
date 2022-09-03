@@ -3,6 +3,7 @@ import 'package:books/presentation/forgotPassword/forgot_password.dart';
 import 'package:books/presentation/login/login.dart';
 import 'package:books/presentation/main/bottomBar/bottom_bar.dart';
 import 'package:books/presentation/main/homePages/popular_items.dart';
+import 'package:books/presentation/main/homePages/recent%20release.dart';
 import 'package:books/presentation/main/main_view.dart';
 import 'package:books/presentation/onBoard/on_board.dart';
 import 'package:books/presentation/register/register.dart';
@@ -21,6 +22,7 @@ class Routes{
   static const String mainRoute = "/main";
   static const String storeDetailsRoute = "/storeDetails";
   static const String bottomBarRoute = "/bottomBar";
+  static const String recentRoute = "/recent";
 }
 
 class RouteGenerator{
@@ -42,6 +44,8 @@ class RouteGenerator{
       return MaterialPageRoute(builder: (_)=>StoreDetailsView());
       case Routes.bottomBarRoute:
       return MaterialPageRoute(builder: (_)=>BottomBarPage());
+      case Routes.recentRoute:
+      return MaterialPageRoute(builder: (_)=>RecentItems());
       default:
       return unDefinedRoute();
     }

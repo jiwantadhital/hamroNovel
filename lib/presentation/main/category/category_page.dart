@@ -1,9 +1,14 @@
+import 'package:books/controller/attribute_controller.dart';
+import 'package:books/controller/novel_controller.dart';
+import 'package:books/presentation/main/category/inside_catrgory/each_categories.dart';
 import 'package:books/presentation/main/homePages/recent%20release.dart';
 import 'package:books/presentation/resources/color_manager.dart';
 import 'package:books/presentation/resources/values_manager.dart';
 import 'package:books/presentation/widgets/big_text.dart';
+import 'package:books/presentation/widgets/small_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 
 class CategoryPage extends StatelessWidget {
@@ -11,6 +16,7 @@ class CategoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<AttributeController>().fetchData;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorManager.white,
@@ -23,57 +29,60 @@ class CategoryPage extends StatelessWidget {
         ),
       ),
       body: Container(
-        margin: EdgeInsets.only(left: 20,right: 20,top: 10),
-        child: GridView.builder(
+        margin: EdgeInsets.only(left: 10,right: 20,top: 20),
+        child: Consumer<AttributeController>(
+          builder: ((context, value, child) {
+          return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 2.5,
+            crossAxisCount: 3,
+            childAspectRatio: 0.8,
           ), 
-          itemCount: 30,
+          itemCount: value.attributeList.length,
           itemBuilder: (context, index){
-            return GestureDetector(
-              onTap: (){
-                 Navigator.push(
-                          context,
-                        MaterialPageRoute(builder: (context) {
-                          return Scaffold(
-                            appBar: AppBar(
-                            backgroundColor: ColorManager.white,
-                            iconTheme: IconThemeData(
-                              color: ColorManager.primary,
-                            ),
-                            elevation: AppSize.s1_5,
-                            title: Center(child: BigText(text: "Science Fiction",color: ColorManager.primary,)),
-                            systemOverlayStyle: SystemUiOverlayStyle(
-                            statusBarColor: ColorManager.white,
-                            statusBarBrightness: Brightness.dark,
-                            statusBarIconBrightness: Brightness.dark,
-        ),
-      ),
-                            body: Container(
-                              margin: EdgeInsets.only(top: 20),
-                              child: SingleChildScrollView(child: RecentItems())),
-                          );
-                        }),
-                        );
-              },
-              child: Container(
-                margin: EdgeInsets.only(left: 10,right: 10,bottom: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color.fromARGB(96, 49, 43, 20),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(2,3),
-                      color: Colors.black87.withOpacity(0.8)
-                    )
-                  ],
-                ),
-                child: Center(child: BigText(text: "Science Fiction",color: ColorManager.white,)),
+            return Container(
+              margin: EdgeInsets.only(left: 10,bottom: 10),
+              height: 300,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1,color: ColorManager.lightGrey.withOpacity(0.2)),
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(2,1),
+                    color: ColorManager.grey.withOpacity(0.05),
+                    blurRadius: 5
+                  )
+                ]
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(
+                      context,
+                  MaterialPageRoute(builder: (context) =>  EachCategory(productId: index,)),
+                  );
+                    },
+                    child: Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(60),
+                        border: Border.all(width: 4,color: ColorManager.white),
+                        image: DecorationImage(image: AssetImage("assets/images/l1.jpg"),
+                        fit: BoxFit.cover
+                        )
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  SmallText(text: value.attributeList[index].name.toString(),color: ColorManager.darkGrey,)
+                ],
               ),
             );
           },
-          ),
+          );
+        }))
       )
     );
   }

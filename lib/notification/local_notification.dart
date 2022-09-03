@@ -1,4 +1,5 @@
 
+import 'package:books/presentation/routesManager/routes_manager.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -29,7 +30,7 @@ class LocalNotificationService{
           //     ),
           //   ),
           // );
-
+          Routes.recentRoute;
           
         }
         else{

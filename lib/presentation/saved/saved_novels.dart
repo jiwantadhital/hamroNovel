@@ -108,7 +108,7 @@ class _FavPageState extends State<FavPage> {
                               maxLines: 2,
                               ),
                               SizedBox(
-                                height: 10,
+                                height: 5,
                               ),
                               Text(childrenClass.description.toString(),
                               style: TextStyle(

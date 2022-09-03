@@ -16,6 +16,7 @@ import 'package:books/presentation/widgets/small_text.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:provider/provider.dart';
 import 'package:books/constants/app_constants.dart';
 import 'package:http/http.dart' as http;
@@ -157,7 +158,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   RichText(
-                                    text: TextSpan(
+                                    text: const TextSpan(
                                       children: [
                                         WidgetSpan(
                                             child: Icon(
@@ -264,11 +265,11 @@ class _MainDetailPageState extends State<MainDetailPage>
                 Stack(
                   children: [
                     Positioned(
-                      top: 240,
+                      top: 220,
                       left: 0,
                       right: 0,
                       child: Container(
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+                        padding: EdgeInsets.only(left: 20, right: 20, top: 10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           color: ColorManager.white,
@@ -295,7 +296,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                       ),
                     ),
                     Positioned(
-                      top: 320,
+                      top: 285,
                       left: 0,
                       right: 0,
                       child: DefaultTabController(
@@ -332,7 +333,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                                 padding: EdgeInsets.only(
                                     left: 10, right: 5, bottom: 55),
                                 height:
-                                    MediaQuery.of(context).size.height * 0.52,
+                                    MediaQuery.of(context).size.height * 0.55,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   boxShadow: [

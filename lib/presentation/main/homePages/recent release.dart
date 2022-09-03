@@ -19,7 +19,21 @@ class RecentItems extends StatelessWidget {
       context: context,
       child: Consumer<NovelController>(builder: (context, value, child) {
         return value.novelList.length == 0 && !value.error
-            ? Center(child: CircularProgressIndicator())
+            ? ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: 2,
+              shrinkWrap: true,
+              itemBuilder: (context,index){
+              return Container(
+                margin: EdgeInsets.all(10),
+                height: 150,
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: ColorManager.lightGrey.withOpacity(0.1)
+                ),
+              );
+            })
             : value.error
                 ? Text("Opps")
                 : ListView.builder(
@@ -50,7 +64,7 @@ class RecentItems extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => MainDetailPage(
-                                        pageId: index,
+                                        pageId: value.novelList[index].id!-1,
                                       )),
                             );
                           },

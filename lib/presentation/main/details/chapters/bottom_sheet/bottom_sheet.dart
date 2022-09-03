@@ -51,7 +51,7 @@ class _ItemsState extends State<Items> {
   String _comment = " ";
   String submit = "Submit";
   Widget afterSubmit = BigText(
-    text: "submit",
+    text: "Submit",
     color: ColorManager.white,
   );
 
@@ -185,10 +185,9 @@ class _ItemsState extends State<Items> {
           SizedBox(
             height: 10,
           ),
-          FlatButton(
-            color: ColorManager.primary,
-            minWidth: 150,
-            onPressed: () async {
+          SizedBox(height: 20,),
+          GestureDetector(
+            onTap: ()async {
               setState(() {
                 afterSubmit = Container(
                     height: 25,
@@ -202,8 +201,31 @@ class _ItemsState extends State<Items> {
               await context.read<NovelController>().novelList;
               Navigator.pop(context);
             },
-            child: afterSubmit,
-          )
+            child: Container(
+              height: 50,
+              width: 120,
+              decoration: BoxDecoration(
+                color: ColorManager.primary,
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: Center(child: GestureDetector(
+                onTap: ()async{
+                  setState(() {
+                afterSubmit = Container(
+                    height: 25,
+                    width: 25,
+                    child: CircularProgressIndicator(
+                      color: ColorManager.white,
+                    ));
+              });
+              _apply();
+              await context.read<NovelController>().fetchData;
+              await context.read<NovelController>().novelList;
+              Navigator.pop(context);
+                },
+                child: afterSubmit)),
+            ),
+          ),
         ],
       ),
     );

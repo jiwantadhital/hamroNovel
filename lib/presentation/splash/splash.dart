@@ -13,18 +13,15 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> with TickerProviderStateMixin{
+
+
+  
+
   late Animation<double> animation;
   late AnimationController controller;
   Timer? _timer;
 
-  _startDelay(){
-    controller = AnimationController(vsync: this, duration: Duration(seconds: 2),)..forward();
-    animation = CurvedAnimation(parent: controller, curve: Curves.easeIn);
-    _timer = Timer(Duration(seconds: 4), _goNext);
-  }
-  _goNext(){
-    Navigator.pushReplacementNamed(context, Routes.onBoardinghRoute);
-  }
+  
   @override
   void initState() {
     super.initState();
@@ -34,6 +31,14 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin{
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+  _startDelay(){
+    controller = AnimationController(vsync: this, duration: Duration(seconds: 2),)..forward();
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeIn);
+    _timer = Timer(Duration(seconds: 4), _goNext);
+  }
+  _goNext(){
+    Navigator.pushReplacementNamed(context, Routes.onBoardinghRoute);
   }
 
   @override
