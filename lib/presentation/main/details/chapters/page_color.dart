@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 
 class PageColor extends StatelessWidget {
   Color color;
+  Color border;
    PageColor({
     Key? key,required this.color,
+    required this.border
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(seconds: 2),
       height: 30,
       width: 30,
       decoration: BoxDecoration(
-        border: Border.all(width: 1,color: ColorManager.white),
+        border: Border.all(width: 1,color: border),
         borderRadius: BorderRadius.circular(30),
         color: color,
       ),

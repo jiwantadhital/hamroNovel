@@ -1,4 +1,5 @@
 import 'package:books/presentation/main/category/category_page.dart';
+import 'package:books/presentation/main/category/other_categories.dart';
 import 'package:books/presentation/main/main_view.dart';
 import 'package:books/presentation/main/personaldetails/personal_info.dart';
 import 'package:books/presentation/main/search/search_page.dart';
@@ -17,7 +18,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
   int _selectedIndex = 0;
   List pages = [
     MainView(),
-    CategoryPage(),
+    OtherCategoryPage(),
     SearchPage(),
     PersonalInfo(),
   ];

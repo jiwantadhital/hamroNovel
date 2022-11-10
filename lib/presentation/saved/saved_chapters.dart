@@ -4,25 +4,23 @@ import 'package:books/presentation/main/details/chapters/page_color.dart';
 import 'package:books/presentation/resources/color_manager.dart';
 import 'package:books/presentation/resources/values_manager.dart';
 import 'package:books/presentation/widgets/big_text.dart';
+import 'package:books/presentation/widgets/small_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class SavedChapters extends StatefulWidget {
     int pageI;
-    var allChapters;
-SavedChapters({required this.pageI,required this.allChapters});
+    var chapterIndex;
+SavedChapters({required this.pageI,required this.chapterIndex});
 
   @override
   State<SavedChapters> createState() => _SavedChaptersState();
 }
 
-class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveClientMixin{
-  @override
- bool get wantKeepAlive => true;
-
-  PageController _chapterController = PageController(initialPage: 0);
-  
+class _SavedChaptersState extends State<SavedChapters>{
+  int changeNumber = 2;
 
   bool show = true;
   Color pageColor = Colors.white;
@@ -30,14 +28,33 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
   double textSize = 20;
   String dropdownValue = 'Normal';
   var list = <String>['Normal', 'Montserrat','Baskerville'];
+  void _incrementCounter() async {
+                final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                            prefs.setInt('changNo',changeNumber);
+                            prefs.setDouble('textSize', textSize);
+                            prefs.setString('dropdown', dropdownValue);
+                     });
+                    }
+
+                    void _loadCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      changeNumber = prefs.getInt('changNo')!.toInt();
+      textSize =prefs.getDouble('textSize')!.toDouble();
+      dropdownValue =prefs.getString('dropdown').toString();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadCounter();
     pageColor=Colors.white;
     textColor = Colors.black;
     textSize = 20;
     show = true;
+
   }
 
   // @override
@@ -49,9 +66,26 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
   // }
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    NovelModel childrenClass = NovelModel.fromJson(widget.allChapters);
-    // var recent = context.read<NovelController>().novelList[widget.pageI];
+        NovelModel childrenClass = NovelModel.fromJson(widget.chapterIndex);
+
+    if(changeNumber == 1){
+          pageColor = Colors.black;
+        textColor = Colors.white;
+    }
+    else if(changeNumber == 2){
+        pageColor = Colors.white;
+      textColor = Colors.black;
+    }
+    else if(changeNumber == 3){
+               pageColor = Color.fromARGB(255,224,200,167);
+            textColor = Colors.black;
+    }
+    else if(changeNumber == 4){
+            pageColor = Colors.grey;
+          textColor = Colors.white;
+    }
+      PageController _chapterController = PageController(initialPage: widget.pageI);
+    // var chapter = context.read<NovelController>().novelList[widget.pageI];
     var pageColors = Container(
                   padding: EdgeInsets.only(right: 20),
                   height: 75,
@@ -62,35 +96,35 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                       GestureDetector(
                         onTap: (){
                           setState(() {
-                            pageColor = Colors.black;
-                            textColor = Colors.white;
+                          changeNumber = 1;
+                          _incrementCounter();
                           });
                         },
-                        child: PageColor(color: Colors.black,)),
+                        child: PageColor(color: Colors.black,border: textColor)),
                       GestureDetector(
                         onTap: (){
                           setState(() {
-                            pageColor = Colors.white;
-                            textColor = Colors.black;
+                           changeNumber = 2;
+                            _incrementCounter();
                           });
                         },
-                        child: PageColor(color: Colors.white,)),
+                        child: PageColor(color: Colors.white,border: textColor)),
                       GestureDetector(
                         onTap: (){
                           setState(() {
-                                       pageColor = Color.fromARGB(255,224,200,167);
-                          textColor = Colors.black;
+                          changeNumber = 3;
+                           _incrementCounter();
                           });
                         },
-                        child: PageColor(color: Color.fromARGB(255,224,200,167))),
+                        child: PageColor(color: Color.fromARGB(255,224,200,167),border: textColor)),
                       GestureDetector(
                         onTap: (){
                           setState(() {
-                               pageColor = Colors.grey;
-                          textColor = Colors.white;
+                        changeNumber = 4;
+                         _incrementCounter();
                           });
                         },
-                        child: PageColor(color: Colors.grey,)),
+                        child: PageColor(color: Colors.grey,border: textColor)),
 
                     ],
                   ),
@@ -106,6 +140,7 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                           onTap: (){
                             setState(() {
                               textSize = 15;
+                              _incrementCounter();
                             });
                           },
                           child: PageFont(text: "S")),
@@ -113,6 +148,7 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                           onTap: (){
                             setState(() {
                               textSize = 20;
+                              _incrementCounter();
                             });
                           },
                           child: PageFont(text: "M")),
@@ -120,6 +156,7 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                           onTap: (){
                             setState(() {
                               textSize = 25;
+                              _incrementCounter();
                             });
                           },
                           child: PageFont(text: "L")),
@@ -134,6 +171,7 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
       onChanged: (String? newValue) {
         setState(() {
           dropdownValue = newValue!;
+          _incrementCounter();
         });
       },
       items: list
@@ -147,12 +185,14 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
     return Scaffold(
       body: SafeArea(
         child: PageView.builder(
+          controller: _chapterController,
           itemCount: childrenClass.chapters!.length,
           itemBuilder: (context,index) {
             return Scaffold(
             
               body:  Scrollbar(
         child: CustomScrollView(
+          physics: ClampingScrollPhysics(),
           slivers: [
             SliverAppBar(
               actions: [
@@ -198,7 +238,7 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                 color: pageColor,
                 padding: EdgeInsets.only(left: 10,right: 10,),
                 child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
+                  physics: ClampingScrollPhysics(),
                   child: Column(
                     children: [
                       Center(
@@ -224,6 +264,18 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
                         ),
                         ),
                       ),
+                      SizedBox(height: 10,),
+                      SmallText(text: "End Of Chapter",color: Colors.red,),
+                      SizedBox(height: 10,),
+                      GestureDetector(
+                        onTap: (){
+                          setState(() {
+                          _chapterController = PageController(initialPage: widget.chapterIndex+1);
+
+                          });
+                        },
+                        child: SmallText(text: "NextPage",color: Colors.red,)),
+                      SizedBox(height: 20,),
                     ],
                   ),
                 ),
@@ -234,18 +286,19 @@ class _SavedChaptersState extends State<SavedChapters> with AutomaticKeepAliveCl
       ),
             );
           }
-        ),
+            ),
+        
       ),
       bottomNavigationBar: show? Container(
         padding: EdgeInsets.only(left: 10,right: 10),
         height: 5,
         decoration: BoxDecoration(
-          color: ColorManager.darkGrey
+          color: ColorManager.white
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
+           
           ],
         ),
       ):Container(

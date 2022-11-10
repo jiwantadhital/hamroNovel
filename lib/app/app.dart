@@ -1,5 +1,7 @@
 
 import 'package:books/controller/attribute_controller.dart';
+import 'package:books/controller/favourite_controller.dart';
+import 'package:books/controller/likes_controller.dart';
 import 'package:books/controller/novel_controller.dart';
 import 'package:books/presentation/routesManager/routes_manager.dart';
 import 'package:flutter/material.dart';
@@ -40,15 +42,29 @@ class _MyAppState extends State<MyApp> {
           return AttributeController();
         },
         ),
+        ChangeNotifierProvider(create: (context){
+          return FavouriteController();
+        },
+        ),
+         ChangeNotifierProvider(create: (context){
+          return Token();
+        },
+        ),
+        ChangeNotifierProvider(create: (context){
+          return LikeController();
+        },
+        ),
       ],
       child: MaterialApp(
               builder: (context, widget) => ResponsiveWrapper.builder(
-          BouncingScrollWrapper.builder(context, widget!),
+          ClampingScrollWrapper.builder(context, widget!),
           maxWidth: 1200,
           minWidth: 450,
           defaultScale: true,
           breakpoints: [
             const ResponsiveBreakpoint.resize(450, name: MOBILE),
+            const ResponsiveBreakpoint.autoScale(570, name: "MMOBILE"),
+            const ResponsiveBreakpoint.autoScale(644, name: "LMOBILE"),
             const ResponsiveBreakpoint.autoScale(800, name: TABLET),
             const ResponsiveBreakpoint.autoScale(1000, name: TABLET),
             const ResponsiveBreakpoint.resize(1200, name: DESKTOP),

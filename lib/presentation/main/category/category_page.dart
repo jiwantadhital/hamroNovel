@@ -8,6 +8,7 @@ import 'package:books/presentation/widgets/big_text.dart';
 import 'package:books/presentation/widgets/small_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 
@@ -19,6 +20,9 @@ class CategoryPage extends StatelessWidget {
     context.read<AttributeController>().fetchData;
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+          color: ColorManager.darkGrey,
+        ),
         backgroundColor: ColorManager.white,
         elevation: AppSize.s1_5,
         title: Center(child: BigText(text: "Categories",color: ColorManager.primary,)),
@@ -32,7 +36,7 @@ class CategoryPage extends StatelessWidget {
         margin: EdgeInsets.only(left: 10,right: 20,top: 20),
         child: Consumer<AttributeController>(
           builder: ((context, value, child) {
-          return GridView.builder(
+          return value.attributeList.length !=0? GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             childAspectRatio: 0.8,
@@ -81,6 +85,8 @@ class CategoryPage extends StatelessWidget {
               ),
             );
           },
+          ):Center(
+            child: SpinKitThreeBounce(color: ColorManager.primary,),
           );
         }))
       )

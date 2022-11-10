@@ -1,12 +1,18 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:books/controller/likes_controller.dart';
 import 'package:books/controller/novel_controller.dart';
 import 'package:books/data/dao/favouriteDAO.dart';
 import 'package:books/data/database/database.dart';
+import 'package:books/data/likes/dao/likeDAO.dart';
+import 'package:books/data/likes/like_database/likedatabase.dart';
+import 'package:books/data/likes/like_model.dart';
 import 'package:books/data/model/favourite_model.dart';
 import 'package:books/presentation/main/details/chapters/bottom_sheet/bottom_sheet.dart';
 import 'package:books/presentation/main/details/chapters/chapter_details.dart';
+import 'package:books/presentation/main/details/chapters/chapter_list.dart';
+import 'package:books/presentation/main/details/extras/attributes.dart';
 import 'package:books/presentation/main/details/title_description.dart';
 import 'package:books/presentation/resources/color_manager.dart';
 import 'package:books/presentation/widgets/app_column.dart';
@@ -15,11 +21,10 @@ import 'package:books/presentation/widgets/big_text.dart';
 import 'package:books/presentation/widgets/small_text.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:provider/provider.dart';
 import 'package:books/constants/app_constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainDetailPage extends StatefulWidget {
   int pageId;
@@ -31,6 +36,10 @@ class MainDetailPage extends StatefulWidget {
 
 class _MainDetailPageState extends State<MainDetailPage>
     with SingleTickerProviderStateMixin {
+
+
+//
+
   String words = "Preparing";
   AppIcon icon = AppIcon(
     icon: Icons.download,
@@ -41,19 +50,39 @@ class _MainDetailPageState extends State<MainDetailPage>
     backgroundColor: ColorManager.white,
   );
   bool downloaded = false;
-  late String _user;
+   late String _user;
   String get user => _user;
+      late LikeDAO _ldao;
+  LikeDAO get ldao => _ldao;
+
+  Future<void> getDeviceTokenToSendNotification() async {
+    final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+    final token = await _fcm.getToken();
+    _user = token.toString();
+  }
 
   late FavouriteDAO _dao;
   FavouriteDAO get dao => _dao;
 
+  int number  = 0;
+  int chapterIndex = 0;
+  int id = 1;
+void _showSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      number = (prefs.getInt('chapterIndex') ?? 0);
+      chapterIndex = (prefs.getInt('ChapterNumber')??1);
+      id = (prefs.getInt('pageId')??1);
+    });
+  }
   @override
   void initState() {
     super.initState();
-    words;
+      getDeviceTokenToSendNotification();
+    _showSaved();
     downloaded;
     _insertData();
-    getDeviceTokenToSendNotification();
+    _insertLike();
     _tabController = TabController(length: 3, vsync: this);
     _tabController!.addListener(_handleTabSelection);
   }
@@ -64,11 +93,7 @@ class _MainDetailPageState extends State<MainDetailPage>
     _dao = database.favouriteDAO;
   }
 
-  Future<void> getDeviceTokenToSendNotification() async {
-    final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-    final token = await _fcm.getToken();
-    _user = token.toString();
-  }
+  
 
   TabController? _tabController;
 
@@ -84,8 +109,20 @@ class _MainDetailPageState extends State<MainDetailPage>
     }
   }
 
+
+    //For likes
+
+   void _insertLike() async {
+    final database =
+        await $FloorLikeDatabase.databaseBuilder('edmt liked.db').build();
+        _ldao = database.likeDAO;
+  }
+    IconData like_icon = Icons.favorite_outline;
+
   @override
   Widget build(BuildContext context) {
+    var getLike = context.read<Token>().ldao;
+    context.read<LikeController>().fetchData;
     _apply(int product_id) async {
       var data = {
         'user': user,
@@ -100,12 +137,25 @@ class _MainDetailPageState extends State<MainDetailPage>
         print('error');
       }
     }
+       _likes(int product_id,String name, String image) async {
+      var data = {
+        'name' : name,
+        'image' : image,
+        'liked': user,
+        'product_id': product_id,
+      };
+      var res = await CallApi().postData(data, 'add/likes');
+
+      var body = jsonDecode(res.body);
+      if (body["success"]) {
+        print("hoorrray");
+      } else {
+        print('error');
+      }
+    }
 
     var recent = context.read<NovelController>().novelList[widget.pageId];
-    var list = context.read<NovelController>().novelList;
-    List rating = recent.comments!;
     List<int?> newest = [];
-    var newList = json.encode(rating);
     for (int i = 0; i < recent.comments!.length; i++) {
       newest.add(recent.comments?[i].likes!.toInt());
     }
@@ -121,7 +171,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                 Positioned(
                   child: Container(
                     width: double.maxFinite,
-                    height: 250,
+                    height: 255,
                     decoration: BoxDecoration(
                         image: DecorationImage(
                       fit: BoxFit.cover,
@@ -137,8 +187,8 @@ class _MainDetailPageState extends State<MainDetailPage>
                         child: Row(
                           children: [
                             Container(
-                              margin: EdgeInsets.only(left: 70, top: 15),
-                              height: MediaQuery.of(context).size.height * 0.21,
+                              margin: const EdgeInsets.only(left: 70, top: 30),
+                              height: MediaQuery.of(context).size.height * 0.19,
                               width: MediaQuery.of(context).size.height * 0.13,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
@@ -157,23 +207,28 @@ class _MainDetailPageState extends State<MainDetailPage>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  RichText(
-                                    text: const TextSpan(
+                                  Consumer<LikeController>(
+                                    builder: (context,value,child){
+                                      var arrayLike = value.likeList.where((x) => x.productId==recent.id).toList();
+                                      int tlikes = arrayLike.length;
+                                      return RichText(
+                                    text:  TextSpan(
                                       children: [
-                                        WidgetSpan(
+                                        const WidgetSpan(
                                             child: Icon(
                                           Icons.favorite,
                                           color: Colors.red,
                                         )),
                                         TextSpan(
-                                          text: "33k",
-                                          style: TextStyle(
+                                          text: tlikes.toString(),
+                                          style: const TextStyle(
                                               color: Colors.black,
                                               fontWeight: FontWeight.bold),
                                         )
                                       ],
                                     ),
-                                  ),
+                                  );
+                                  }),
                                   SizedBox(
                                     height: 10,
                                   ),
@@ -265,7 +320,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                 Stack(
                   children: [
                     Positioned(
-                      top: 220,
+                      top:  MediaQuery.of(context).size.height<900? 237:257,
                       left: 0,
                       right: 0,
                       child: Container(
@@ -296,7 +351,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                       ),
                     ),
                     Positioned(
-                      top: 285,
+                      top: MediaQuery.of(context).size.height<900?305:325,
                       left: 0,
                       right: 0,
                       child: DefaultTabController(
@@ -333,7 +388,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                                 padding: EdgeInsets.only(
                                     left: 10, right: 5, bottom: 55),
                                 height:
-                                    MediaQuery.of(context).size.height * 0.55,
+                                   MediaQuery.of(context).size.height<900? MediaQuery.of(context).size.height * 0.55:MediaQuery.of(context).size.height*0.59,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   boxShadow: [
@@ -354,65 +409,7 @@ class _MainDetailPageState extends State<MainDetailPage>
                                               "Author: ${recent.createdBy!.name.toString()}",
                                           description:
                                               recent.description.toString()),
-                                      ListView.builder(
-                                          physics: BouncingScrollPhysics(),
-                                          itemCount: recent.chapters!.length,
-                                          itemBuilder:
-                                              (BuildContext context, index) {
-                                            return Card(
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ChapterDetails(
-                                                              pageI:
-                                                                  widget.pageId,
-                                                            )),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: 50,
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            4.0,
-                                                        child: BigText(
-                                                            text: recent
-                                                                .chapters![
-                                                                    index]
-                                                                .number
-                                                                .toString(),
-                                                            color:
-                                                                Colors.black),
-                                                      ),
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            1.5,
-                                                        child: BigText(
-                                                          text: recent
-                                                              .chapters![index]
-                                                              .name
-                                                              .toString(),
-                                                          color: Colors.black,
-                                                          weight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }),
+                                      ChapterList(pageId: widget.pageId),
                                       Scaffold(
                                         resizeToAvoidBottomInset: true,
                                         body: ListView.builder(
@@ -554,7 +551,22 @@ class _MainDetailPageState extends State<MainDetailPage>
           ),
         ],
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: FutureBuilder<List<UserLike?>>(
+          initialData: [],
+            future: getLike.getAllFav(),
+            builder: (BuildContext context, AsyncSnapshot<List<UserLike?>> snapshot){
+              List<int> saveLike = [];
+              var favList = snapshot.data;
+              var getData = favList!.where((x)=>x!.id==recent.id).toList();
+              for(int i=0;i<getData.length;i++){
+                  saveLike.add(getData[i]!.id);
+              }
+              int finalLike = saveLike.fold(
+                          0,
+                          (previousValue, current) =>
+                              previousValue + current.toInt());
+                              print(finalLike);
+              return Container(
         height: 55,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -563,22 +575,40 @@ class _MainDetailPageState extends State<MainDetailPage>
               height: 45,
               width: 45,
               decoration: BoxDecoration(
+                color: ColorManager.primary,
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(width: 2, color: ColorManager.darkGrey)),
-              child: Icon(
-                Icons.share,
-                color: ColorManager.primary,
-              ),
+              child: Center(child: BigText(text: "14+",color: ColorManager.white,size: 15,))
             ),
-            Container(
+           Container(
               height: 45,
               width: 45,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(width: 2, color: ColorManager.darkGrey)),
-              child: Icon(
-                Icons.favorite_border,
-                color: ColorManager.primary,
+              child: GestureDetector(
+                onTap: ()async{
+                  UserLike fav = UserLike(
+                  id: recent.id!.toInt(),
+                  image: recent.image!,
+                  name: recent.title!,
+                  );
+                  await ldao.insertFav(fav);
+                  setState(() {
+                    
+                  });
+                  _likes(recent.id!, recent.title!, recent.image!);
+                  final likes = SnackBar(
+                              content: Text("Saved to Your Favourites"),
+                              backgroundColor: ColorManager.primary,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(likes);
+                  },
+                
+                child: Icon(
+                 finalLike==recent.id?Icons.favorite:Icons.favorite_outline,
+                  color: ColorManager.primary,
+                ),
               ),
             ),
             Container(
@@ -588,14 +618,50 @@ class _MainDetailPageState extends State<MainDetailPage>
                   borderRadius: BorderRadius.circular(10),
                   color: ColorManager.primary),
               child: Center(
-                  child: BigText(
-                text: "Give Your Review",
-                color: ColorManager.white,
-              )),
+                  child: id == widget.pageId?
+                  GestureDetector(
+                    onTap: (){
+                       Navigator.push( context,         
+                        MaterialPageRoute(
+                        builder: (context) =>
+                        ChapterDetails(
+                        pageI:
+                        id,
+                        chapterIndex: number,
+                        ),
+                        ),
+                        );
+                    },
+                    child: BigText(
+                                  text: "Continue Chapter $chapterIndex",
+                                  color: ColorManager.white,
+                                ),
+                  ):
+                   GestureDetector(
+                    onTap: (){
+                       Navigator.push( context,         
+                        MaterialPageRoute(
+                        builder: (context) =>
+                        ChapterDetails(
+                        pageI:
+                        widget.pageId,
+                        chapterIndex: 0,
+                        ),
+                        ),
+                        );
+                    },
+                    child: BigText(
+                                  text: "Continue Chapter 1",
+                                  color: ColorManager.white,
+                                ),
+                  ),
+                  ),
             ),
           ],
         ),
-      ),
+      );
+            }
+    )
     );
   }
 }
@@ -617,33 +683,4 @@ _setHeaders() => {
       'Accept': 'application/json',
     };
 
-class Attributes extends StatelessWidget {
-  int atributeId;
-  Attributes({Key? key, required this.atributeId}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    var attribute = context.read<NovelController>().novelList[atributeId];
-    return Container(
-      height: 20,
-      child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: attribute.attributes!.length,
-          itemBuilder: ((context, index) {
-            return Container(
-              margin: EdgeInsets.only(right: 5),
-              height: 10,
-              width: 70,
-              decoration: BoxDecoration(
-                  color: ColorManager.darkGrey,
-                  borderRadius: BorderRadius.circular(5)),
-              alignment: Alignment.center,
-              child: SmallText(
-                text: attribute.attributes![index].name.toString(),
-                color: ColorManager.white,
-              ),
-            );
-          })),
-    );
-  }
-}

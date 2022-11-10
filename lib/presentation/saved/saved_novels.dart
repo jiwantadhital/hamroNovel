@@ -1,13 +1,17 @@
 import 'dart:convert';
 
 import 'package:books/constants/app_constants.dart';
+import 'package:books/controller/favourite_controller.dart';
 import 'package:books/data/dao/favouriteDAO.dart';
 import 'package:books/data/database/database.dart';
 import 'package:books/data/model/favourite_model.dart';
 import 'package:books/domain/models/novels_model.dart';
 import 'package:books/presentation/resources/color_manager.dart';
 import 'package:books/presentation/saved/saved_details.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 
 class FavPage extends StatefulWidget {
@@ -19,14 +23,36 @@ class FavPage extends StatefulWidget {
 }
 
 class _FavPageState extends State<FavPage> {
-  
+   late String _user;
+  String get user => _user;
+  Widget delete = Icon(Icons.delete,color: Colors.black45);
 
-  
+Future<void> getDeviceTokenToSendNotification() async {
+    final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+    final token = await _fcm.getToken();
+    _user = token.toString();
+  }  
   var allData;
 
-
+@override
+  void initState() {
+    super.initState();
+    getDeviceTokenToSendNotification();
+  }
   @override
   Widget build(BuildContext context) {
+           _apply(int sum) async {
+                            var res = await DeleteApi().postData('favourite/${sum}');
+
+                            var body = jsonDecode(res.body);
+                            if (body[1]) {
+                            print("hoorrray");
+                            } else {
+                            print('error');
+                            }
+                           }
+        context.read<FavouriteController>().fetchData;
+        var want =  context.read<FavouriteController>().fetchData;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -41,13 +67,21 @@ class _FavPageState extends State<FavPage> {
             future: widget.dao.getAllFav(),
             builder: (BuildContext context, AsyncSnapshot<List<Favourite?>> snapshot){
               var favList = snapshot.data;
-              return ListView.builder(
+              return Consumer<FavouriteController>(builder: ((context, value, child)  {
+                return ListView.builder(
             itemCount: favList!.length,
             itemBuilder: (context,index){
                allData = json.decode(favList[index]!.all);
-              // // var newId = allData[0]["id"];
                 var childrenClass = NovelModel.fromJson(allData);
-              //   print(childrenClass);
+              var delFav = value.favouriteList.where((x) => x.productId==childrenClass.id).where((y) => y.user==user).toList();
+                List<int?> newest = [];
+                  for (int i = 0; i < delFav.length; i++) {
+                 newest.add(delFav[i].id);
+                     }
+                  int sum = newest.fold(
+                          0,
+                          (previousValue, current) =>
+                              previousValue + current!.toInt());
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: GestureDetector(
@@ -61,6 +95,7 @@ class _FavPageState extends State<FavPage> {
                                               data : json.decode(favList[index]!.all),
                                             )),
                                   );
+                          
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -124,16 +159,25 @@ class _FavPageState extends State<FavPage> {
                         Container(
                           height: 80,
                           width: MediaQuery.of(context).size.width*0.15,
-                          child: GestureDetector(
+                          child: value.favouriteList.length!=0? GestureDetector(
                              onTap: ()async{
+                              delete = Container(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(color: ColorManager.white,),
+                              );
+                                        _apply(sum);
+                                        setState(() {
+                                          
+                                        });
                                          var item = snapshot.data as List<Favourite?>;
                                          await widget.dao.deleteFav(item[index]!);
                                            setState(() {
-                                             
                                            });
                                            
                                       },
-                            child: Icon(Icons.delete,color: Colors.black45,)),
+                            child: delete,
+                            ):Container(),
                         )
                       ],
                     ),
@@ -141,6 +185,7 @@ class _FavPageState extends State<FavPage> {
                 )
               );
           });
+              }));
             },
           
         ),
@@ -148,3 +193,21 @@ class _FavPageState extends State<FavPage> {
     );
   }
 }
+
+
+
+class DeleteApi {
+  final String _url = "${AppConstants.BASE_URL}/api/";
+  postData(apiUrl) async {
+    var fullUrl = _url + apiUrl;
+    return await http.delete(
+      Uri.parse(fullUrl),
+      headers: _setHeaders(),
+    );
+  }
+}
+
+_setHeaders() => {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };

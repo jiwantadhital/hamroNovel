@@ -31,7 +31,7 @@ class EachCategory extends StatelessWidget {
         ),
          child: Column(
            children: [
-            SizedBox(height: MediaQuery.of(context).size.height*0.035,),
+            SizedBox(height: MediaQuery.of(context).size.height*0.034,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -72,7 +72,7 @@ class EachCategory extends StatelessWidget {
           itemCount: novels.novel!.length,
           itemBuilder: (context, index){
             return Container(
-              margin: EdgeInsets.only(left: 10,right: 10,top: 30),
+              margin: EdgeInsets.only(left: 10,right: 10,top: 25),
               
               child: Column(
                 children: [
@@ -87,7 +87,7 @@ class EachCategory extends StatelessWidget {
                             );
                     },
                     child: Container(
-                                  height: MediaQuery.of(context).size.height*0.23,
+                                  height: MediaQuery.of(context).size.height<900?MediaQuery.of(context).size.height*0.190:MediaQuery.of(context).size.height*0.180,
                                   decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(width: 1,color: ColorManager.lightGrey.withOpacity(0.1)),
@@ -108,7 +108,7 @@ class EachCategory extends StatelessWidget {
               SizedBox(height: 5,),
               Container(
                 padding: EdgeInsets.only(left: 5,right: 5),
-                child: SmallText(text: novels.novel![index].title.toString(),color: Colors.black,lines: 2,),
+                child: SmallText(text:novels.novel![index].title.toString(),color: Colors.black,lines: 2,),
               )
                 ],
               )

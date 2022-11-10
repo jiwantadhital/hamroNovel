@@ -47,6 +47,8 @@ class NovelController with ChangeNotifier{
     _novelList =[];
     _error = false;
     _errorMessage = "";
+        print("errorrr");
+
     notifyListeners();
   }
 

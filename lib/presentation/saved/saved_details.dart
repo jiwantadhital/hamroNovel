@@ -51,7 +51,7 @@ class SavedDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.only(left: AppSize.s20,top: AppSize.s10,right: AppSize.s20),
                     child: Column(
                       children: [
-                        AppColumn1(text: childrenClass.title.toString(),text1: "Chapters: 12",),
+                        AppColumn1(text: childrenClass.title.toString(),text1: "Chapters: ${childrenClass.chapters!.length}"),
                       ],
                     ),
                   ),
@@ -82,8 +82,8 @@ class SavedDetailPage extends StatelessWidget {
                                       Navigator.push(
                                           context,
                                         MaterialPageRoute(builder: (context) =>  SavedChapters(
-                                          pageI: pindex,
-                                          allChapters: data,
+                                          pageI: index,
+                                          chapterIndex: data,
                                         )),
                                     );
                                             },

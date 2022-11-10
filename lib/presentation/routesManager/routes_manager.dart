@@ -43,9 +43,7 @@ class RouteGenerator{
       case Routes.storeDetailsRoute:
       return MaterialPageRoute(builder: (_)=>StoreDetailsView());
       case Routes.bottomBarRoute:
-      return MaterialPageRoute(builder: (_)=>BottomBarPage());
-      case Routes.recentRoute:
-      return MaterialPageRoute(builder: (_)=>RecentItems());
+      return MaterialPageRoute(builder: (_)=>BottomBarPage());;
       default:
       return unDefinedRoute();
     }
