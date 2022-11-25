@@ -161,11 +161,7 @@ Future<void> getDeviceTokenToSendNotification() async {
                           width: MediaQuery.of(context).size.width*0.15,
                           child: value.favouriteList.length!=0? GestureDetector(
                              onTap: ()async{
-                              delete = Container(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(color: ColorManager.white,),
-                              );
+                            
                                         _apply(sum);
                                         setState(() {
                                           
